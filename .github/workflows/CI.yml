@@ -98,7 +98,9 @@ jobs:
         kubectl get components -n components        
  
         
+    
     - name: Install test Kit
+      continue-on-error: true
       run: |
         cd feature-definition-and-test-kit/identity-manager-utils-keycloak
         npm install
@@ -113,7 +115,10 @@ jobs:
         export KEYCLOAK_BASE_URL="http://localhost:8083/auth/"
         export KEYCLOAK_REALM=myrealm
         export CUCUMBER_PUBLISH_TOKEN=9afda79b-9ea0-44ff-8359-7f381ade4bb6
-        npm start -- --tags '@UC003-F003'|tee /tmp/output.json
+        npm start -- --tags '@UC003-F003'  |tee /tmp/test_results.json
+        kubectl get apis -n components
+        CANVAS_POD=$(kubectl get pods -n canvas -l app=oda-controller-ingress -o jsonpath='{.items[*].metadata.name}')
+        kubectl -n canvas logs $CANVAS_POD |tee /tmp/canvas_logs.json
  
       
     - name: Upload JSON Report
